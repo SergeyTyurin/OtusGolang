@@ -23,8 +23,7 @@ func isEscaped(str string, pos int) bool {
 }
 
 func isValid(str string, pos int) bool {
-	substr := str[pos:]
-	ch, size := utf8.DecodeRuneInString(substr)
+	ch, size := utf8.DecodeRuneInString(str[pos:])
 	_, err := strconv.Atoi(string(ch))
 
 	checkPrevNumber := func(str string, pos int) bool {
