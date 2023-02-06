@@ -16,11 +16,19 @@ func TestUnpack(t *testing.T) {
 		{input: "abccd", expected: "abccd"},
 		{input: "", expected: ""},
 		{input: "aaa0b", expected: "aab"},
-		// uncomment if task with asterisk completed
-		// {input: `qwe\4\5`, expected: `qwe45`},
-		// {input: `qwe\45`, expected: `qwe44444`},
-		// {input: `qwe\\5`, expected: `qwe\\\\\`},
-		// {input: `qwe\\\3`, expected: `qwe\3`},
+		{input: "q0", expected: ""},
+		{input: `\2q`, expected: "2q"},
+		{input: "я4br2н5д", expected: "яяяяbrrнннннд"},
+		{input: "якttш", expected: "якttш"},
+		{input: "wшw0д", expected: "wшд"},
+		{input: "d\n5abc", expected: "d\n\n\n\n\nabc"},
+		{input: `qwe\4\5`, expected: `qwe45`},
+		{input: `qwe\45`, expected: `qwe44444`},
+		{input: `qwe\\5`, expected: `qwe\\\\\`},
+		{input: `qwe\\\3`, expected: `qwe\3`},
+		{input: `漢語`, expected: `漢語`},
+		{input: "\\4漢語", expected: `4漢語`},
+		{input: "\\\\4漢語", expected: `\\\\漢語`},
 	}
 
 	for _, tc := range tests {
@@ -34,7 +42,7 @@ func TestUnpack(t *testing.T) {
 }
 
 func TestUnpackInvalidString(t *testing.T) {
-	invalidStrings := []string{"3abc", "45", "aaa10b"}
+	invalidStrings := []string{"3abc", "45", "aaa10b", `golang\`, `\n`, `\`, `\ц`, `qwe\n4r`}
 	for _, tc := range invalidStrings {
 		tc := tc
 		t.Run(tc, func(t *testing.T) {
