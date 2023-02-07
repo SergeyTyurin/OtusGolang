@@ -9,6 +9,10 @@ import (
 
 var ErrInvalidString = errors.New("invalid string")
 
+func isNumber(r rune) bool {
+	return r >= '0' && r <= '9'
+}
+
 func isEscaped(str string, pos int) bool {
 	result := false
 	for pos != 0 {
@@ -24,19 +28,16 @@ func isEscaped(str string, pos int) bool {
 
 func isValid(str string, pos int) bool {
 	ch, size := utf8.DecodeRuneInString(str[pos:])
-	_, err := strconv.Atoi(string(ch))
-
 	checkPrevNumber := func(str string, pos int) bool {
 		ch, size := utf8.DecodeLastRuneInString(str[:pos])
-		_, err := strconv.Atoi(string(ch))
-		if err == nil && !isEscaped(str, pos-size) {
+		if isNumber(ch) && !isEscaped(str, pos-size) {
 			return false
 		}
 		return true
 	}
 
 	// check number
-	if err == nil {
+	if isNumber(ch) {
 		if pos == 0 {
 			return false
 		}
@@ -52,7 +53,6 @@ func isValid(str string, pos int) bool {
 	if ch == '\\' && (pos+size) == len(str) {
 		return false
 	}
-
 	return true
 }
 
@@ -68,8 +68,8 @@ func Unpack(str string) (string, error) {
 			continue
 		}
 
-		number, err := strconv.Atoi(string(ch))
-		if err == nil && !isEscaped(str, pos) {
+		if isNumber(ch) && !isEscaped(str, pos) {
+			number, _ := strconv.Atoi(string(ch))
 			strBuilder.WriteString(strings.Repeat(buf, number))
 			buf = ""
 		} else {
