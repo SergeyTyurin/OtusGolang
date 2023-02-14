@@ -6,7 +6,6 @@ import (
 	"sort"
 	"strings"
 	"unicode"
-	"unicode/utf8"
 )
 
 var (
@@ -26,10 +25,8 @@ func getFormattedWord(str string) (string, error) {
 		return "", errorValidString
 	}
 	str = strings.ToLower(str)
-	matcher := `[^\p{P}]+[\p{P}\p{L}]*[^\p{P}]+`
-	if utf8.RuneCountInString(str) <= 3 {
-		matcher = `[^\p{P}]+`
-	}
+	matcher := `[^\p{P}]+(\p{P}*[^\p{P}]+)*`
+
 	validID := regexp.MustCompile(matcher)
 	formatted := validID.FindString(str)
 	return formatted, nil
