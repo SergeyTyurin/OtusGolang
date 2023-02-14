@@ -100,6 +100,7 @@ func TestFormatWord(t *testing.T) {
 		{input: `94!`, expected: "94"},
 		{input: `,`, expected: ""},
 		{input: `!,`, expected: ""},
+		{input: `aaa.bbb.ccc`, expected: "aaa.bbb.ccc"},
 	}
 
 	for _, test := range tests {

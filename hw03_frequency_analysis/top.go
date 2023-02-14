@@ -18,7 +18,7 @@ func getFormattedWord(str string) (string, error) {
 		return "", errorValidString
 	}
 	str = strings.ToLower(str)
-	matcher := `[^\p{P}]+[\p{P}]*[^\p{P}]+`
+	matcher := `[^\p{P}]+[\p{P}\p{L}]*[^\p{P}]+`
 	if utf8.RuneCountInString(str) == 1 {
 		matcher = `[^\p{P}]`
 	}
