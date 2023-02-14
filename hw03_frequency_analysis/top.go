@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 )
 
@@ -13,14 +14,21 @@ var (
 	N                = 10
 )
 
+func split(str string) []string {
+	f := func(c rune) bool {
+		return unicode.IsMark(c) || unicode.IsSpace(c)
+	}
+	return strings.FieldsFunc(str, f)
+}
+
 func getFormattedWord(str string) (string, error) {
-	if len(strings.Fields(str)) > 1 {
+	if len(split(str)) > 1 {
 		return "", errorValidString
 	}
 	str = strings.ToLower(str)
 	matcher := `[^\p{P}]+[\p{P}\p{L}]*[^\p{P}]+`
-	if utf8.RuneCountInString(str) == 1 {
-		matcher = `[^\p{P}]`
+	if utf8.RuneCountInString(str) <= 3 {
+		matcher = `[^\p{P}]+`
 	}
 	validID := regexp.MustCompile(matcher)
 	formatted := validID.FindString(str)
@@ -28,7 +36,7 @@ func getFormattedWord(str string) (string, error) {
 }
 
 func Top10(input string) []string {
-	words := strings.Fields(input)
+	words := split(input)
 	counter := make(map[string]int)
 	for _, word := range words {
 		word, _ = getFormattedWord(word)
