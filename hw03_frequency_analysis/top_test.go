@@ -7,7 +7,7 @@ import (
 )
 
 // Change to true if needed.
-var taskWithAsteriskIsCompleted = false
+var taskWithAsteriskIsCompleted = true
 
 var text = `Как видите, он  спускается  по  лестнице  вслед  за  своим
 	другом   Кристофером   Робином,   головой   вниз,  пересчитывая
@@ -79,4 +79,78 @@ func TestTop10(t *testing.T) {
 			require.Equal(t, expected, Top10(text))
 		}
 	})
+}
+
+func TestFormatWord(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{input: "Текст", expected: "текст"},
+		{input: "!Текст", expected: "текст"},
+		{input: "Текст,", expected: "текст"},
+		{input: "тЕкст", expected: "текст"},
+		{input: "те,кСт", expected: "те,кст"},
+		{input: `'текст'`, expected: "текст"},
+		{input: `"текст"`, expected: "текст"},
+		{input: `"те8_-.кст"`, expected: "те8_-.кст"},
+		{input: ``, expected: ""},
+		{input: `и`, expected: "и"},
+		{input: `9`, expected: "9"},
+		{input: `94!`, expected: "94"},
+		{input: `,`, expected: ""},
+		{input: `!,`, expected: ""},
+		{input: `aaa.bbb.ccc`, expected: "aaa.bbb.ccc"},
+		{input: ",a", expected: "a"},
+		{input: ",a!", expected: "a"},
+		{input: "c.", expected: "c"},
+		{input: "a.a", expected: "a.a"},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.input, func(t *testing.T) {
+			result, err := getFormattedWord(test.input)
+			require.NoError(t, err)
+			require.Equal(t, test.expected, result)
+		})
+	}
+}
+
+func TestSplit(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected []string
+	}{
+		{input: "Слово1 слово2", expected: []string{"Слово1", "слово2"}},
+		{input: "\nСлово1\nслово2\n", expected: []string{"Слово1", "слово2"}},
+		{input: "\nСлово1\t\tслово2\n", expected: []string{"Слово1", "слово2"}},
+		{input: "\nСлово1.слово2\n", expected: []string{"Слово1.слово2"}},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.input, func(t *testing.T) {
+			result := split(test.input)
+			require.Equal(t, test.expected, result)
+		})
+	}
+}
+
+func TestFormatWordError(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{input: "Слово1 слово2", expected: ""},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.input, func(t *testing.T) {
+			result, err := getFormattedWord(test.input)
+			require.Error(t, err)
+			require.Equal(t, test.expected, result)
+		})
+	}
 }
