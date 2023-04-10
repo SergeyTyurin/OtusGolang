@@ -90,4 +90,87 @@ func TestPipeline(t *testing.T) {
 		require.Len(t, result, 0)
 		require.Less(t, int64(elapsed), int64(abortDur)+int64(fault))
 	})
+
+	t.Run("done before execute case", func(t *testing.T) {
+		in := make(Bi)
+		done := make(Bi)
+		data := []int{1, 2, 3, 4, 5}
+
+		close(done)
+
+		go func() {
+			for _, v := range data {
+				in <- v
+			}
+			close(in)
+		}()
+
+		result := make([]string, 0, 10)
+		start := time.Now()
+		for s := range ExecutePipeline(in, done, stages...) {
+			result = append(result, s.(string))
+		}
+		elapsed := time.Since(start)
+
+		require.Len(t, result, 0)
+		require.Less(t, int64(elapsed), int64(fault))
+	})
+
+	t.Run("done after execute case", func(t *testing.T) {
+		in := make(Bi)
+		done := make(Bi)
+		data := []int{1, 2, 3, 4, 5}
+
+		go func() {
+			for _, v := range data {
+				in <- v
+			}
+			close(in)
+		}()
+
+		result := make([]string, 0, 10)
+		start := time.Now()
+		for s := range ExecutePipeline(in, done, stages...) {
+			result = append(result, s.(string))
+		}
+		elapsed := time.Since(start)
+		close(done)
+		require.Len(t, result, 5)
+		require.Less(t, int64(elapsed),
+			// ~0.8s for processing 5 values in 4 stages (100ms every) concurrently
+			int64(sleepPerStage)*int64(len(stages)+len(data)-1)+int64(fault))
+	})
+
+	t.Run("always open done case", func(t *testing.T) {
+		in := make(Bi)
+		done := make(Bi)
+		data := []int{1, 2, 3, 4, 5}
+
+		go func() {
+			for _, v := range data {
+				in <- v
+			}
+			close(in)
+		}()
+
+		result := make([]string, 0, 10)
+		start := time.Now()
+		for s := range ExecutePipeline(in, done, stages...) {
+			result = append(result, s.(string))
+		}
+		elapsed := time.Since(start)
+
+		require.Len(t, result, 5)
+		require.Less(t, int64(elapsed),
+			// ~0.8s for processing 5 values in 4 stages (100ms every) concurrently
+			int64(sleepPerStage)*int64(len(stages)+len(data)-1)+int64(fault))
+	})
+
+	t.Run("nil input case", func(t *testing.T) {
+		result := make([]string, 0)
+		for s := range ExecutePipeline(nil, nil, stages...) {
+			result = append(result, s.(string))
+		}
+		require.True(t, len(result) == 0, "the result isn't empty")
+	})
 }
