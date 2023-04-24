@@ -12,6 +12,7 @@ var (
 	ErrUnsupportedFile       = errors.New("unsupported file")
 	ErrOffsetExceedsFileSize = errors.New("offset exceeds file size")
 	ErrIsDirectory           = errors.New("path is directory, not a file")
+	ErrIsSamePaths           = errors.New("from file and to file are same")
 	ChunkBytes               = int64(1024)
 )
 
@@ -23,6 +24,10 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 
 	if fileInfo.IsDir() {
 		return ErrIsDirectory
+	}
+
+	if fromPath == toPath {
+		return ErrIsSamePaths
 	}
 
 	if fileInfo.Size() < offset {

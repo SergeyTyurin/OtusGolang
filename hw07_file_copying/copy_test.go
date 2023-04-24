@@ -13,4 +13,5 @@ func TestCopy(t *testing.T) {
 	require.ErrorIs(t, Copy("testdata/input.txt", "", 0, 100), ErrUnsupportedFile)
 	require.ErrorIs(t, Copy("testdata/", "testdata/input.txt", 0, 100), ErrIsDirectory)
 	require.ErrorIs(t, Copy("testdata/input.txt", "results/out.txt", 10000, 100), ErrOffsetExceedsFileSize)
+	require.ErrorIs(t, Copy("testdata/input.txt", "testdata/input.txt", 0, 100), ErrIsSamePaths)
 }
