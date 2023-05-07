@@ -45,7 +45,6 @@ func TestCheckValue(t *testing.T) {
 	})
 
 	t.Run("empty data case", func(t *testing.T) {
-
 		require.NotNil(t, minRule.CheckValue("", "4"))
 		require.NotNil(t, minRule.CheckValue("a", nil))
 

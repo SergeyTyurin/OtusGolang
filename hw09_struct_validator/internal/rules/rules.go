@@ -203,8 +203,7 @@ func (r InRule) CheckValue(rule string, value interface{}) error {
 		return fmt.Errorf(strParsingError, rule)
 	}
 	val := reflect.ValueOf(value)
-	switch val.Type().Kind() {
-	case reflect.Int:
+	if val.Type().Kind() == reflect.Int {
 		elements := strings.Split(rule, ",")
 		if len(elements) == 0 {
 			return fmt.Errorf(strParsingError, rule)
@@ -223,7 +222,8 @@ func (r InRule) CheckValue(rule string, value interface{}) error {
 			}
 		}
 		return ValidationError{Err: fmt.Errorf(strValidationError, rule, value)}
-	case reflect.String:
+	}
+	if val.Type().Kind() == reflect.String {
 		elements := strings.Split(rule, ",")
 		if len(elements) == 0 {
 			return fmt.Errorf(strParsingError, rule)
