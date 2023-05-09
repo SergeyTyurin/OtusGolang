@@ -1,13 +1,15 @@
 package hw10programoptimization
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"regexp"
 	"strings"
+
+	easyjson "github.com/mailru/easyjson"
 )
 
+//easyjson:json
 type User struct {
 	ID       int
 	Name     string
@@ -35,11 +37,10 @@ func getUsers(r io.Reader) (result users, err error) {
 	if err != nil {
 		return
 	}
-
 	lines := strings.Split(string(content), "\n")
 	for i, line := range lines {
 		var user User
-		if err = json.Unmarshal([]byte(line), &user); err != nil {
+		if err = easyjson.Unmarshal([]byte(line), &user); err != nil {
 			return
 		}
 		result[i] = user
@@ -49,17 +50,14 @@ func getUsers(r io.Reader) (result users, err error) {
 
 func countDomains(u users, domain string) (DomainStat, error) {
 	result := make(DomainStat)
-
-	for _, user := range u {
-		matched, err := regexp.Match("\\."+domain, []byte(user.Email))
-		if err != nil {
-			return nil, err
-		}
-
-		if matched {
-			num := result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])]
-			num++
-			result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])] = num
+	reg, err := regexp.Compile("\\." + domain)
+	if err != nil {
+		return nil, err
+	}
+	size := len(u)
+	for i := 0; i < size; i++ {
+		if reg.MatchString(u[i].Email) {
+			result[strings.ToLower(strings.SplitN(u[i].Email, "@", 2)[1])]++
 		}
 	}
 	return result, nil
