@@ -44,16 +44,3 @@ func BenchmarkGetDomainStat(b *testing.B) {
 		GetDomainStat(bytes.NewBufferString(data), "gov")
 	}
 }
-
-func BenchmarkGetUsers(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		getUsers(bytes.NewBufferString(data))
-	}
-}
-
-func BenchmarkCountDomains(b *testing.B) {
-	u, _ := getUsers(bytes.NewBufferString(data))
-	for i := 0; i < b.N; i++ {
-		countDomains(u, "gov")
-	}
-}

@@ -1,9 +1,9 @@
 package hw10programoptimization
 
 import (
+	"bufio"
 	"fmt"
 	"io"
-	"regexp"
 	"strings"
 
 	easyjson "github.com/mailru/easyjson"
@@ -23,41 +23,23 @@ type User struct {
 type DomainStat map[string]int
 
 func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
-	u, err := getUsers(r)
-	if err != nil {
-		return nil, fmt.Errorf("get users error: %w", err)
-	}
-	return countDomains(u, domain)
-}
-
-type users [100_000]User
-
-func getUsers(r io.Reader) (result users, err error) {
-	content, err := io.ReadAll(r)
-	if err != nil {
-		return
-	}
-	lines := strings.Split(string(content), "\n")
-	for i, line := range lines {
-		var user User
-		if err = easyjson.Unmarshal([]byte(line), &user); err != nil {
-			return
-		}
-		result[i] = user
-	}
-	return
-}
-
-func countDomains(u users, domain string) (DomainStat, error) {
 	result := make(DomainStat)
-	reg, err := regexp.Compile("\\." + domain)
-	if err != nil {
-		return nil, err
-	}
-	size := len(u)
-	for i := 0; i < size; i++ {
-		if reg.MatchString(u[i].Email) {
-			result[strings.ToLower(strings.SplitN(u[i].Email, "@", 2)[1])]++
+
+	scanner := bufio.NewScanner(r)
+	for {
+		if !scanner.Scan() {
+			break
+		}
+
+		var user User
+
+		if err := easyjson.Unmarshal(scanner.Bytes(), &user); err != nil {
+			return nil, fmt.Errorf("get users error: %w", err)
+		}
+
+		if strings.Contains(user.Email, "."+domain) {
+			domainBegin := strings.Index(user.Email, "@")
+			result[strings.ToLower(user.Email[domainBegin+1:])]++
 		}
 	}
 	return result, nil
