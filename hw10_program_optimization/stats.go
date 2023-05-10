@@ -31,6 +31,10 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 			break
 		}
 
+		if err := scanner.Err(); err != nil {
+			return nil, fmt.Errorf("get users error: %w", err)
+		}
+
 		var user User
 
 		if err := easyjson.Unmarshal(scanner.Bytes(), &user); err != nil {
