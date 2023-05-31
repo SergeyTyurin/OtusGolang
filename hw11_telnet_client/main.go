@@ -11,12 +11,7 @@ import (
 	"time"
 )
 
-var (
-	tmpWithTime    = "go-telnet --timeout=10s host port"
-	tmpWithoutTime = "go-telnet host port"
-	errFormatStr   = `args error: require "%v" or "%v"`
-	timeout        time.Duration
-)
+var timeout time.Duration
 
 func init() {
 	flag.DurationVar(&timeout, "timeout", time.Second*10, "file to read from")
@@ -67,6 +62,9 @@ func main() {
 func parseCommandLine(args []string, withTimeout bool) (string, error) {
 	count := len(args)
 	if (withTimeout && count != 4) || (!withTimeout && count != 3) {
+		tmpWithTime := "go-telnet --timeout=10s host port" // #nosec G101
+		tmpWithoutTime := "go-telnet host port"            // #nosec G101
+		errFormatStr := `args error: require "%v" or "%v"`
 		return "", fmt.Errorf(errFormatStr, tmpWithTime, tmpWithoutTime)
 	}
 
